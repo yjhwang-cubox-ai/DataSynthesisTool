@@ -1,0 +1,10 @@
+{
+    "id":{
+        "korean_firstname_male_list" : "data/name/kor_name_m.csv",
+        "korean_firstname_female_list" : "data/name/kor_name_f.csv",
+        "korean_lastname_list" : "data/name/kor_last.csv",
+        "ch_word_list" : "data/word/ch_word.csv",
+        "address_front" : "data/address/address_front.csv",
+        "address_back" : "data/address/address_back.csv"
+    }
+}

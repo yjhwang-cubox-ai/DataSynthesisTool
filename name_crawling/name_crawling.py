@@ -110,7 +110,7 @@ def crawling_chinese():
     element = table.find_elements(By.CLASS_NAME, 's3zppxXT')
         
     for i in element:
-        chinese.append(i.accessible_name)        
+        chinese.append(i.accessible_name)
     
     result = []
     for value in chinese:
