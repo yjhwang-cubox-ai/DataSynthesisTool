@@ -29,7 +29,8 @@ class Generator:
         self.read_name_inform(config)
         self.read_address_inform(config)
         
-    def randomGenerator(self):      
+    def randomGenerator(self):
+        self.clear_inform() # 추후 Id_information 필요없으면 없앨 것
         self.defineGender()
         self.defineAge()
         self.genName()
@@ -52,6 +53,14 @@ class Generator:
         self.address_front_list = [line[0] for line in list_]
         list_ = read_csv(config["address_back"])
         self.address_back_list = [line[0] for line in list_]    
+    
+    def clear_inform(self):
+        self.Id_information['name'].clear()
+        self.Id_information['chinese_name'].clear()
+        self.Id_information['resident_registration_number'].clear()
+        self.Id_information['address'].clear()
+        self.Id_information['issue_date'].clear()
+        self.Id_information['issuing_authority'].clear()
     
     def defineGender(self):
         if random.random() > 0.5:
@@ -131,6 +140,6 @@ class Generator:
         
     def genAddress(self):
         front_idx = np.random.choice(len(self.address_front_list))
-        front_fix = self.address_back_list[front_idx]
+        front_fix = self.address_front_list[front_idx]
         
         print(front_fix)
