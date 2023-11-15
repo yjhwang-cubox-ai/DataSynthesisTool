@@ -11,7 +11,7 @@ class Generator:
         self.korean_fname_female_list = None
         self.ch_word_list = None
         self.address_front_list = None
-        self.address_end_list = None
+        self.address_back_list = None
         
         self.gender = None
         self.age = None        
@@ -29,13 +29,13 @@ class Generator:
         self.read_name_inform(config)
         self.read_address_inform(config)
         
-    def randomGenerator(self):
+    def randomGenerator(self):      
         self.defineGender()
         self.defineAge()
         self.genName()
         self.genChName()
         self.genResidentRegistrationNumber()
-        # self.genAddress()
+        self.genAddress()
     
     def read_name_inform(self, config):
         list_ = read_csv(config["korean_lastname_list"])
@@ -51,10 +51,7 @@ class Generator:
         list_ = read_csv(config["address_front"])
         self.address_front_list = [line[0] for line in list_]
         list_ = read_csv(config["address_back"])
-        self.address_back_list = [line[0] for line in list_]
-    
-    
-    
+        self.address_back_list = [line[0] for line in list_]    
     
     def defineGender(self):
         if random.random() > 0.5:
@@ -103,7 +100,6 @@ class Generator:
         random_date = start + (end - start) * random.random()
         
         birth_date = [str(random_date.year), str(random_date.month), str(random_date.day)]
-        print(birth_date)
         
         regi_number = ''
         
@@ -132,3 +128,9 @@ class Generator:
         regi_number += backnumber
         self.Information.append(regi_number)
         self.Id_information['resident_registration_number'].append(regi_number)
+        
+    def genAddress(self):
+        front_idx = np.random.choice(len(self.address_front_list))
+        front_fix = self.address_back_list[front_idx]
+        
+        print(front_fix)
