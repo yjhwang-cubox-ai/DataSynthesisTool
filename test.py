@@ -1,6 +1,8 @@
 import argparse
 
 from utils.file_utils import *
+from utils.text_utils import *
+
 import syntext
 
 
@@ -12,10 +14,8 @@ def main():
     
     for _ in range(3):
     
-        generator.randomGenerator()
-        print(generator.gender)
-        print(generator.age)
-        print(generator.Id_information)
+        text_info = generator.randomGenerator()
+        set_Text_Font(text_info, config["id"])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

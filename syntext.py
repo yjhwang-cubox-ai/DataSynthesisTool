@@ -42,6 +42,8 @@ class Generator:
         self.genAddress()
         self.genISSDate()
         self.genISSAuth()
+        
+        return self.Id_information
     
     def read_name_inform(self, config):
         list_ = read_csv(config["korean_lastname_list"])
@@ -155,7 +157,6 @@ class Generator:
         _bld_add = self.__setBLDAddress()
         
         if random.random() < 0.75: #ROAD part
-            print(back_arr[3])
             if back_arr[3] == '0':
                 back_road_num = back_arr[2]
             else:

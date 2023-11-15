@@ -5,6 +5,15 @@
         "korean_lastname_list" : "data/name/kor_last.csv",
         "ch_word_list" : "data/word/ch_word.csv",
         "address_front" : "data/address/address_front.csv",
-        "address_back" : "data/address/address_back.csv"
+        "address_back" : "data/address/address_back.csv",
+
+        "type_font" : "fonts/KoPubWorld Dotum Medium.ttf",
+        "kor_name_font" : "./fonts/batang.ttf",
+        "ch_name_font" : "./fonts/KoPubWorld Batang Light.ttf",
+        "regi_number_font" : "./fonts/Regular.ttf",
+        "address_font" : "./fonts/SunBatang-Light.ttf",
+        "issue_date" : "./fonts/OSeongandHanEum-Regular.ttf",
+        "issue_authority" : "./fonts/GimhaeGayaR.ttf"
+
     }
 }
