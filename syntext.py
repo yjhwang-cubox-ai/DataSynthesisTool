@@ -26,7 +26,7 @@ class Generator:
                             'resident_registration_number' : [],
                             'address': [],
                             'issue_date': [],
-                            'issuing_authority': [],
+                            'issue_authority': [],
                             }
         
         self.read_name_inform(config)
@@ -41,6 +41,7 @@ class Generator:
         self.genResidentRegistrationNumber()
         self.genAddress()
         self.genISSDate()
+        self.genISSAuth()
     
     def read_name_inform(self, config):
         list_ = read_csv(config["korean_lastname_list"])
@@ -64,7 +65,7 @@ class Generator:
         self.Id_information['resident_registration_number'].clear()
         self.Id_information['address'].clear()
         self.Id_information['issue_date'].clear()
-        self.Id_information['issuing_authority'].clear()
+        self.Id_information['issue_authority'].clear()
     
     def defineGender(self):
         if random.random() > 0.5:
@@ -240,3 +241,18 @@ class Generator:
         date = f'{random_date.year}. {random_date.month}. {random_date.day}.'
         
         self.Id_information['issue_date'].append(date)
+        
+    def genISSAuth(self):
+        if '제주' in self._front_arr_[0]:
+            issauth = '제주특별자치도지사'
+        else:
+            if self._front_arr_[1][-1] == '시':
+                issauth = ' '.join(self._front_arr_) + '장'
+            elif self._front_arr_[1][-1] == '구':
+                issauth = ' '.join(self._front_arr_) + '청장'
+            elif self._front_arr_[1][-1] == '군':
+                issauth = ' '.join(self._front_arr_) + '수'
+            else:
+                issauth = ' '.join(self._front_arr)
+        
+        self.Id_information['issue_authority'].append(issauth)
