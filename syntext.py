@@ -15,6 +15,7 @@ class Generator:
         
         self.gender = None
         self.age = None
+        self.birth_year = None
         self._front_arr_ = None
         
         self.Information = ['주민등록증']
@@ -39,6 +40,7 @@ class Generator:
         self.genChName()
         self.genResidentRegistrationNumber()
         self.genAddress()
+        self.genISSDate()
     
     def read_name_inform(self, config):
         list_ = read_csv(config["korean_lastname_list"])
@@ -105,8 +107,8 @@ class Generator:
         self.Id_information['chinese_name'].append('('+ch_name+')')
         
     def genResidentRegistrationNumber(self):
-        birth_year = datetime.now().year - random.randint(self.age-2, self.age+3)
-        start = datetime(birth_year, 1, 1, 00, 00, 00)
+        self.birth_year = datetime.now().year - random.randint(self.age-2, self.age+3)
+        start = datetime(self.birth_year, 1, 1, 00, 00, 00)
         end = start + timedelta(days=365)
         random_date = start + (end - start) * random.random()
         
@@ -225,3 +227,16 @@ class Generator:
         else:   # pass
             _bld_add = ''
         return _bld_add
+    
+    def genISSDate(self):
+        min_year = self.birth_year +17
+        max_year = datetime.now().year
+        
+        start = datetime(min_year, 1, 1, 00, 00, 00)
+        years = max_year - min_year + 1
+        end = start + timedelta(days=365 * years)
+        
+        random_date = start + (end - start) * random.random()
+        date = f'{random_date.year}. {random_date.month}. {random_date.day}.'
+        
+        self.Id_information['issue_date'].append(date)
