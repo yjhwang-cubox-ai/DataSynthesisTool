@@ -10,7 +10,7 @@ def main():
         
     generator = syntext.Generator(config["id"])
     
-    for _ in range(10):
+    for _ in range(3):
     
         generator.randomGenerator()
         print(generator.gender)

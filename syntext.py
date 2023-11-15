@@ -14,7 +14,9 @@ class Generator:
         self.address_back_list = None
         
         self.gender = None
-        self.age = None        
+        self.age = None
+        self._front_arr_ = None
+        
         self.Information = ['주민등록증']
         self.Id_information = {
                             'type' : ['주민등록증'],
@@ -52,7 +54,7 @@ class Generator:
         list_ = read_csv(config["address_front"])
         self.address_front_list = [line[0] for line in list_]
         list_ = read_csv(config["address_back"])
-        self.address_back_list = [line[0] for line in list_]    
+        self.address_back_list = [line for line in list_]    
     
     def clear_inform(self):
         self.Id_information['name'].clear()
@@ -141,5 +143,85 @@ class Generator:
     def genAddress(self):
         front_idx = np.random.choice(len(self.address_front_list))
         front_fix = self.address_front_list[front_idx]
+        front_arr = front_fix.split(' ')
+        self._front_arr_ = front_arr[:2]
         
-        print(front_fix)
+        back_idx = np.random.choice(len(self.address_back_list))
+        back_arr = self.address_back_list[back_idx]
+        
+        _bld_add = self.__setBLDAddress()
+        
+        if random.random() < 0.75: #ROAD part
+            print(back_arr[3])
+            if back_arr[3] == '0':
+                back_road_num = back_arr[2]
+            else:
+                back_road_num = '-'.join([back_arr[2], back_arr[3]])
+            back_road = ' '.join([back_arr[0], back_road_num])
+            
+            if _bld_add != '':
+                back_fix = back_road + ', ' + _bld_add
+            else:
+                back_fix = back_road
+            
+            # proc '동', '리'
+            if front_arr[-1][-1] == '동':
+                front_dong = front_arr[-1]
+                front_fix = ' '.join(front_arr[:-1])                
+                back_fix = back_fix + ' (' + front_dong + ', ' + back_arr[1] + ')' 
+            elif front_arr[-1][-1] == '리':
+                front_fix = ' '.join(front_arr[:-1])
+                back_fix = back_fix + ' (' + back_arr[1] + ')'
+        else:   # LOT part
+            if back_arr[5] == '0':
+                back_fix = back_arr[4]
+            else:
+                back_fix = '-'.join([back_arr[4], back_arr[5]])
+
+            if _bld_add != '':
+                back_fix = back_fix + ', ' + _bld_add
+            else:
+                back_fix = back_fix
+        
+        long_address = ' '.join([front_fix, back_fix])
+        self.Id_information['address'].append(long_address)
+    
+    def __setBLDAddress(self):
+        """ Determine the building number and room number
+            Output  : (str)_bld_add
+            Description : 
+                Probabilistically, 60% is set to return the building number and room number, 
+                25% to return the building number, floor, and room number, 
+                and the remainder to return nothing.
+        """
+        rand = random.random()
+        
+        max_danji = 15
+        max_dong = 30
+        max_floor = 60
+        max_ho = 20
+        
+        # 랜덤 값 부여
+        danji = str(random.randint(0, max_danji))
+        dong = str(random.randint(1, max_dong))
+        floor = str(random.randint(1, max_floor))
+        ho = str(random.randint(1, max_ho))
+        
+        if danji == 0:
+            dong = dong
+        else:
+            dong = danji + dong
+        
+        if len(ho) == 1:
+            ho = floor+'0'+ho
+        else:
+            ho = floor+ho
+        
+        # set building address
+        if rand < 0.60:   # 동 호
+            _bld_add = f'{dong}동 {ho}호'
+        elif rand < 0.85: # 동 층 호
+            _bld_add = f'{dong}동 {floor}층 {ho}호'
+        else:   # pass
+            _bld_add = ''
+        return _bld_add
