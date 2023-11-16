@@ -20,7 +20,7 @@ class Generator:
         
         self.Information = ['주민등록증']
         self.Id_information = {
-                            'type' : ['주민등록증'],
+                            'type' : ['주 민 등 록 증'],
                             'name' : [],
                             'chinese_name' : [],
                             'resident_registration_number' : [],
@@ -254,6 +254,6 @@ class Generator:
             elif self._front_arr_[1][-1] == '군':
                 issauth = ' '.join(self._front_arr_) + '수'
             else:
-                issauth = ' '.join(self._front_arr)
+                issauth = ' '.join(self._front_arr_)
         
         self.Id_information['issue_authority'].append(issauth)

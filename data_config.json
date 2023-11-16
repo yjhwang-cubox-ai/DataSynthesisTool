@@ -12,8 +12,10 @@
         "ch_name_font" : "./fonts/KoPubWorld Batang Light.ttf",
         "regi_number_font" : "./fonts/Regular.ttf",
         "address_font" : "./fonts/SunBatang-Light.ttf",
-        "issue_date" : "./fonts/OSeongandHanEum-Regular.ttf",
-        "issue_authority" : "./fonts/GimhaeGayaR.ttf"
+        "issue_date_font" : "./fonts/OSeongandHanEum-Regular.ttf",
+        "issue_authority_font" : "./fonts/GimhaeGayaR.ttf",
+
+        "template_directory" : "data/template"
 
     }
 }
