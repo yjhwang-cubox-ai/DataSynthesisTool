@@ -1,6 +1,10 @@
+from PIL import Image, ImageDraw, ImageFont
 import random
 import numpy as np
+import glob
+import os
 from datetime import datetime, timedelta
+import textwrap
 from utils.file_utils import *
 
 
@@ -13,14 +17,25 @@ class Generator:
         self.address_front_list = None
         self.address_back_list = None
         
+        self.type = config["type"]
+        self.img_width = config["img_width"]
+        self.img_height = config["img_height"]
         self.gender = None
         self.age = None
         self.birth_year = None
         self._front_arr_ = None
         
-        self.Information = ['주민등록증']
+        self.fonts_path = []
+        self.fonts_info = []
+        
+        self.template_list = []
+        
+        self.save_img_dir = config["save_image_dir"]
+        self.save_anno_dir = config["save_annotation_dir"]
+        
+        self.Information = []
         self.Id_information = {
-                            'type' : ['주민등록증'],
+                            'type' : [],
                             'name' : [],
                             'chinese_name' : [],
                             'resident_registration_number' : [],
@@ -28,12 +43,16 @@ class Generator:
                             'issue_date': [],
                             'issue_authority': [],
                             }
+        self.bbox_annotation = []
         
         self.read_name_inform(config)
         self.read_address_inform(config)
+        self.read_fontpath_infom(config)
+        self.read_tamplate_inform(config)
         
     def randomGenerator(self):
-        self.clear_inform() # 추후 Id_information 필요없으면 없앨 것
+        self.clear_inform()
+        self.defineType()
         self.defineGender()
         self.defineAge()
         self.genName()
@@ -42,6 +61,9 @@ class Generator:
         self.genAddress()
         self.genISSDate()
         self.genISSAuth()
+        self.set_Font()
+        # self.DrawTextOnTemplate()
+        # self.saveAnnotation()
         
         return self.Id_information
     
@@ -59,15 +81,38 @@ class Generator:
         list_ = read_csv(config["address_front"])
         self.address_front_list = [line[0] for line in list_]
         list_ = read_csv(config["address_back"])
-        self.address_back_list = [line for line in list_]    
+        self.address_back_list = [line for line in list_]
+    
+    def read_fontpath_infom(self, config):
+        fonts_path = [config["type_font"],
+                 config["kor_name_font"],
+                 config["ch_name_font"],
+                 config["regi_number_font"],
+                 config["address_font"],
+                 config["issue_date_font"],
+                 config["issue_authority_font"]]
+        
+        self.fonts_path = fonts_path
+    
+    def read_tamplate_inform(self, config):
+        template_dir = config["template_directory"]
+        self.template_list = [file for file in glob.glob(template_dir + '/*')]
+        
+    ###########################################################################
     
     def clear_inform(self):
+        self.Information.clear()
         self.Id_information['name'].clear()
         self.Id_information['chinese_name'].clear()
         self.Id_information['resident_registration_number'].clear()
         self.Id_information['address'].clear()
         self.Id_information['issue_date'].clear()
         self.Id_information['issue_authority'].clear()
+        
+        
+    def defineType(self):
+        self.Information.append(self.type)
+        self.Id_information['type'].append(self.type)
     
     def defineGender(self):
         if random.random() > 0.5:
@@ -99,6 +144,7 @@ class Generator:
             fname_idx = np.random.choice(len(self.korean_fname_male_list), 1)[0]
             f_name = self.korean_fname_male_list[fname_idx]
         l_name = random.sample(self.kor_lname_list, 1)[0]
+        
         self.Information.append(l_name+f_name)
         self.Id_information['name'].append(l_name + f_name)
     
@@ -107,6 +153,7 @@ class Generator:
         ch_idx = np.random.choice(len(self.ch_word_list), len_charactor)
         
         ch_name = ''.join([self.ch_word_list[n] for n in ch_idx])
+        self.Information.append('('+ch_name+')')
         self.Id_information['chinese_name'].append('('+ch_name+')')
         
     def genResidentRegistrationNumber(self):
@@ -188,6 +235,7 @@ class Generator:
                 back_fix = back_fix
         
         long_address = ' '.join([front_fix, back_fix])
+        self.Information.append(long_address)
         self.Id_information['address'].append(long_address)
     
     def __setBLDAddress(self):
@@ -241,6 +289,7 @@ class Generator:
         random_date = start + (end - start) * random.random()
         date = f'{random_date.year}. {random_date.month}. {random_date.day}.'
         
+        self.Information.append(date)
         self.Id_information['issue_date'].append(date)
         
     def genISSAuth(self):
@@ -256,4 +305,142 @@ class Generator:
             else:
                 issauth = ' '.join(self._front_arr_)
         
+        self.Information.append(issauth)
         self.Id_information['issue_authority'].append(issauth)
+    
+    def set_Font(self):
+        if len(self.Information[1]) <= 3:
+            font_size = [56, 45, 45, 33, 33, 33, 42]
+        elif len(self.Information[1]) == 4:
+            font_size = [56, 40, 40, 33, 33, 33, 42]
+        elif len(self.Information[1]) > 4:
+            font_size = [56, 32, 32, 33, 33, 33, 42]
+        
+        for idx in range(len(self.Information)):
+            self.fonts_info.append(ImageFont.truetype(self.fonts_path[idx], font_size[idx]))
+    
+    def DrawTextOnTemplate(self, fname):
+        template_idx = np.random.choice(len(self.template_list))
+        template = self.template_list[template_idx]
+        
+        img = Image.open(template).resize((960,600))
+        draw = ImageDraw.Draw(img)
+        
+        # text
+        if len(self.Information[1]) <= 3:
+            positions = [(304, 84), (200, 179), (350, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
+        elif len(self.Information[1]) == 4:
+            positions = [(304, 84), (200, 179), (370, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
+        elif len(self.Information[1]) >= 5:
+            positions = [(304, 84), (180, 179), (400, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
+        
+        # total_anno_info = []
+        
+        # texts = ['부산광역시 부산진구 천자로 386, 1423동 5815호, (가야제1동, 창원 마린, 푸르지오 1단지)']
+        # texts = ['전라북도 임실군 관촌면 방수리 222, 020동 3507호']
+    
+        for idx, text in enumerate(self.Information):        
+            if len(text) > 16:
+                address = []
+                warpped_text = textwrap.wrap(text, width=16)
+                if len(warpped_text) > 2:
+                    address.append(warpped_text[0])
+                    
+                    spare_text = ''
+                    for i in range(1,len(warpped_text)):
+                        spare_text += warpped_text[i]
+                    spare_texts = textwrap.wrap(spare_text, width=21)
+                    
+                    for text_ in spare_texts:
+                        address.append(text_)
+                else:
+                    address = warpped_text
+                
+                num_txts = len(address)
+                text = '\n'.join(address)
+                textlength = self.multiline_textsize(draw, text, font=self.fonts_info[idx])
+            else:
+                num_txts = 1
+                textlength = draw.textlength(text, font=self.fonts_info[idx])
+            
+            x = positions[idx][0] - textlength // 2
+            y = positions[idx][1] - self.fonts_info[idx].getbbox(text)[-1]*num_txts // 2
+            
+            text_bbox = draw.textbbox((x, y), text, font=self.fonts_info[idx])
+            # draw.rectangle(text_bbox, outline=(0,255,0))
+            
+            if '\n' in text:
+                splited_text = text.split('\n')
+                for splt in splited_text:
+                    draw.multiline_text((x,y), splt, fill="black", font=self.fonts_info[idx])
+                    splt_bbox = draw.textbbox((x,y), splt, font=self.fonts_info[idx])
+                    # draw.rectangle(splt_bbox, outline=(0,0,0))
+                    anno_info = self.get_anno_info(draw, x, y, splt, self.fonts_info[idx])
+                    self.bbox_annotation += anno_info
+                    y += self.fonts_info[idx].getbbox(splt)[-1]
+            else:
+                draw.multiline_text((x, y), text, fill="black", font=self.fonts_info[idx])
+                anno_info = self.get_anno_info(draw, x, y, text, self.fonts_info[idx])
+                if anno_info[0]["text"][0] == '(':
+                    anno_info[0]["text"] = '(' + len(anno_info[0]["text"][1:-1])*'#' + ')'
+                self.bbox_annotation += anno_info
+            
+        # img.show()
+        img_path = os.path.join(self.save_img_dir, fname)
+        
+        img.save(img_path)
+        print(f"{img_path} is saved!")
+    
+    def saveAnnotation(self, img_idx):
+        annos = {"images": {"id": img_idx, "width": self.img_width, "height": self.img_height,
+            "file_name": f'{img_idx}.jpg', "type": "id"
+        }}
+        
+        annos["annotations"] = {}
+        
+        for idx, item in enumerate(self.bbox_annotation):
+            anno_dict = {"id": idx+1, "image_id": img_idx}
+            anno_dict.update(item)
+            annos["annotations"][idx+1]=anno_dict
+        
+        anno_file_path = os.path.join(self.save_anno_dir, f"{img_idx}.json")
+        
+        with open(anno_file_path, 'w') as f:
+            json.dump(annos, f)
+        
+        
+    def multiline_textsize(self, draw, text, font):
+        """ Compute the width and height of multiline text in pixels.
+        """
+        lines = text.split('\n')
+        widths = [draw.textlength(line, font=font) for line in lines]
+        return max(widths)
+
+    def get_anno_info(self, draw, x, y, text, font):
+        anno_info = []
+        words = text.split()
+        
+        for word in words:
+            word_bbox = draw.textbbox((x,y),word, font=font)
+            draw.rectangle(word_bbox, outline=(0,255,0))
+            
+            w = word_bbox[2] - word_bbox[0]
+            
+            x += w + font.getbbox(' ')[2]
+            
+            resize_bbox_left = word_bbox[0] - 3
+            resize_bbox_top = word_bbox[1] - 3
+            resize_bbox_right = word_bbox[2] + 3
+            resize_bbox_bottom = word_bbox[3] + 3
+            
+            word_bbox_resize = (resize_bbox_left, resize_bbox_top, resize_bbox_right, resize_bbox_bottom)
+            
+            draw.rectangle(word_bbox_resize, outline=(255,0,0))
+            
+            anno_info.append({"bbox": list(word_bbox_resize), "mask": self.get_mask_coord(word_bbox_resize), "text": word})
+        
+        return anno_info
+
+    def get_mask_coord(self, bbox):
+        x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3] #(left, top, right, bottom)
+        return [x1,y1, x2,y1, x2,y2, x1,y2]

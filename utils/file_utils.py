@@ -3,7 +3,7 @@ import json
 import csv
 
 def load_config(path):
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         config = json.load(f)
     return config
 

@@ -12,13 +12,15 @@ def main():
         
     generator = syntext.Generator(config["id"])
     
-    for idx in range(20):
+    for idx in range(5):
         fidx = f'{idx:08}'
         fname = f'{fidx}.jpg'
         
-        text_info = generator.randomGenerator()
-        texts, fonts = set_Text_Font(text_info, config["id"])
-        DrawTextOnTemplate(texts, fonts, config["id"], fname)
+        generator.randomGenerator()
+        generator.DrawTextOnTemplate(fname)
+        generator.saveAnnotation(fidx)
+        # texts, fonts = set_Text_Font(text_info, config["id"])
+        # DrawTextOnTemplate(texts, fonts, config["id"], fname)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
