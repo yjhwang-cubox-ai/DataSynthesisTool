@@ -46,7 +46,8 @@ def DrawTextOnTemplate(texts, font, config, fname):
         positions = [(304, 84), (200, 179), (370, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
     elif len(texts[1]) >= 5:
         positions = [(304, 84), (180, 179), (400, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
-    get_anno_info = []
+    
+    total_anno_info = []
     
     # texts = ['부산광역시 부산진구 천자로 386, 1423동 5815호, (가야제1동, 창원 마린, 푸르지오 1단지)']
     # texts = ['전라북도 임실군 관촌면 방수리 222, 020동 3507호']
@@ -79,17 +80,23 @@ def DrawTextOnTemplate(texts, font, config, fname):
         y = positions[idx][1] - font[idx].getbbox(text)[-1]*num_txts // 2
         
         text_bbox = draw.textbbox((x, y), text, font=font[idx])
-        draw.rectangle(text_bbox, outline=(0,255,0))
+        # draw.rectangle(text_bbox, outline=(0,255,0))
         
         if '\n' in text:
             splited_text = text.split('\n')
             for splt in splited_text:
                 draw.multiline_text((x,y), splt, fill="black", font=font[idx])
                 splt_bbox = draw.textbbox((x,y), splt, font=font[idx])
-                draw.rectangle(splt_bbox, outline=(0,0,0))
+                # draw.rectangle(splt_bbox, outline=(0,0,0))
+                anno_info = get_anno_info(draw, x, y, splt, font[idx])
+                total_anno_info += anno_info
                 y += font[idx].getbbox(splt)[-1]
         else:
             draw.multiline_text((x, y), text, fill="black", font=font[idx])
+            anno_info = get_anno_info(draw, x, y, text, font[idx])
+            if anno_info[0]["text"][0] == '(':
+                anno_info[0]["text"] = '(' + len(anno_info[0]["text"][1:-1])*'#' + ')'
+            total_anno_info += anno_info
         
     # img.show()
     img.save(fname)
@@ -101,3 +108,32 @@ def multiline_textsize(draw, text, font):
     lines = text.split('\n')
     widths = [draw.textlength(line, font=font) for line in lines]
     return max(widths)
+
+def get_anno_info(draw, x, y, text, font):
+    anno_info = []
+    words = text.split()
+    
+    for word in words:
+        word_bbox = draw.textbbox((x,y),word, font=font)
+        draw.rectangle(word_bbox, outline=(0,255,0))
+        
+        w = word_bbox[2] - word_bbox[0]
+        
+        x += w + font.getbbox(' ')[2]
+        
+        resize_bbox_left = word_bbox[0] - 3
+        resize_bbox_top = word_bbox[1] - 3
+        resize_bbox_right = word_bbox[2] + 3
+        resize_bbox_bottom = word_bbox[3] + 3
+        
+        word_bbox_resize = (resize_bbox_left, resize_bbox_top, resize_bbox_right, resize_bbox_bottom)
+        
+        draw.rectangle(word_bbox_resize, outline=(255,0,0))
+        
+        anno_info.append({"bbox": list(word_bbox_resize), "mask": get_mask_coord(word_bbox_resize), "text": word})
+    
+    return anno_info
+
+def get_mask_coord(bbox):
+    x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3] #(left, top, right, bottom)
+    return [x1,y1, x2,y1, x2,y2, x1,y2]

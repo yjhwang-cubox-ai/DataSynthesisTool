@@ -20,7 +20,7 @@ class Generator:
         
         self.Information = ['주민등록증']
         self.Id_information = {
-                            'type' : ['주 민 등 록 증'],
+                            'type' : ['주민등록증'],
                             'name' : [],
                             'chinese_name' : [],
                             'resident_registration_number' : [],
