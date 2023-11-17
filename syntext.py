@@ -395,7 +395,10 @@ class Generator:
                 if anno_info[0]["text"][0] == '(':
                     anno_info[0]["text"] = '(' + len(anno_info[0]["text"][1:-1])*'#' + ')'
                 self.bbox_annotation += anno_info
-            
+        
+        # postprocessing
+        if random.random() < 0.5:
+            img = self.addFilter(img, template)
         
         if self.add_hologram == 'True':
             if random.random() < self.hologram_ratio:
@@ -406,11 +409,27 @@ class Generator:
         img.save(img_path)
         print(f"{img_path} is saved!")
     
+    def addFilter(self, img, template):
+        filter = Image.open(template).resize((self.img_width,self.img_height)).convert("RGBA")
+        
+        alpha_data = []
+        alpha_value = random.randint(50,100)
+        alpha = Image.new("L", filter.size)
+        for pixel in filter.getdata():
+            alpha_data.append(alpha_value)
+        alpha.putdata(alpha_data)
+        filter.putalpha(alpha)
+        
+        img.paste(filter, (0,0), filter)
+        
+        return img
+        
+    
     def addHologram(self, img):
         hologram_idx = np.random.choice(len(self.hologram_list))
         hologram_path = self.hologram_list[hologram_idx]
         
-        hologram = Image.open(hologram_path).resize((self.img_width, self.img_height))
+        hologram = Image.open(hologram_path).resize((self.img_width, self.img_height)).convert("RGBA")
         
         img.paste(hologram, (0,0), hologram)
         
