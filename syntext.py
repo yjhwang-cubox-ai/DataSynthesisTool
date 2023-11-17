@@ -25,10 +25,14 @@ class Generator:
         self.birth_year = None
         self._front_arr_ = None
         
+        self.add_hologram = config["add_hologram"]
+        self.hologram_ratio = config["hologram_ratio"]
+        
         self.fonts_path = []
         self.fonts_info = []
         
         self.template_list = []
+        self.hologram_list = []
         
         self.save_img_dir = config["save_image_dir"]
         self.save_anno_dir = config["save_annotation_dir"]
@@ -49,6 +53,7 @@ class Generator:
         self.read_address_inform(config)
         self.read_fontpath_infom(config)
         self.read_tamplate_inform(config)
+        self.read_hologram_inform(config)
         
     def randomGenerator(self):
         self.clear_inform()
@@ -97,6 +102,10 @@ class Generator:
     def read_tamplate_inform(self, config):
         template_dir = config["template_directory"]
         self.template_list = [file for file in glob.glob(template_dir + '/*')]
+    
+    def read_hologram_inform(self, config):
+        hologram_dir = config["hologram_directory"]
+        self.hologram_list = [file for file in glob.glob(hologram_dir + '/*')]
         
     ###########################################################################
     
@@ -147,12 +156,14 @@ class Generator:
         
         self.Information.append(l_name+f_name)
         self.Id_information['name'].append(l_name + f_name)
+        
     
     def genChName(self):
         len_charactor = len(self.Id_information['name'][0])
         ch_idx = np.random.choice(len(self.ch_word_list), len_charactor)
         
         ch_name = ''.join([self.ch_word_list[n] for n in ch_idx])
+        
         self.Information.append('('+ch_name+')')
         self.Id_information['chinese_name'].append('('+ch_name+')')
         
@@ -328,11 +339,11 @@ class Generator:
         
         # text
         if len(self.Information[1]) <= 3:
-            positions = [(304, 84), (200, 179), (350, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
+            positions = [(304, 84), (200, 179), (350, 179), (300, 252), (327, 370), (524, 472), (510, 517)]
         elif len(self.Information[1]) == 4:
-            positions = [(304, 84), (200, 179), (370, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
+            positions = [(304, 84), (200, 179), (390, 179), (300, 252), (327, 370), (524, 472), (510, 517)]
         elif len(self.Information[1]) >= 5:
-            positions = [(304, 84), (180, 179), (400, 181), (300, 252), (327, 370), (524, 472), (510, 517)]
+            positions = [(304, 84), (180, 179), (400, 179), (300, 252), (327, 370), (524, 472), (510, 517)]
         
         # total_anno_info = []
         
@@ -385,11 +396,25 @@ class Generator:
                     anno_info[0]["text"] = '(' + len(anno_info[0]["text"][1:-1])*'#' + ')'
                 self.bbox_annotation += anno_info
             
-        # img.show()
+        
+        if self.add_hologram == 'True':
+            if random.random() < self.hologram_ratio:
+                img = self.addHologram(img)        
+        
         img_path = os.path.join(self.save_img_dir, fname)
         
         img.save(img_path)
         print(f"{img_path} is saved!")
+    
+    def addHologram(self, img):
+        hologram_idx = np.random.choice(len(self.hologram_list))
+        hologram_path = self.hologram_list[hologram_idx]
+        
+        hologram = Image.open(hologram_path).resize((self.img_width, self.img_height))
+        
+        img.paste(hologram, (0,0), hologram)
+        
+        return img
     
     def saveAnnotation(self, img_idx):
         annos = {"images": {"id": img_idx, "width": self.img_width, "height": self.img_height,
@@ -422,7 +447,7 @@ class Generator:
         
         for word in words:
             word_bbox = draw.textbbox((x,y),word, font=font)
-            draw.rectangle(word_bbox, outline=(0,255,0))
+            # draw.rectangle(word_bbox, outline=(0,255,0))
             
             w = word_bbox[2] - word_bbox[0]
             
@@ -435,7 +460,7 @@ class Generator:
             
             word_bbox_resize = (resize_bbox_left, resize_bbox_top, resize_bbox_right, resize_bbox_bottom)
             
-            draw.rectangle(word_bbox_resize, outline=(255,0,0))
+            # draw.rectangle(word_bbox_resize, outline=(255,0,0))
             
             anno_info.append({"bbox": list(word_bbox_resize), "mask": self.get_mask_coord(word_bbox_resize), "text": word})
         

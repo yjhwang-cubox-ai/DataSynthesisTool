@@ -12,7 +12,7 @@ def main():
         
     generator = syntext.Generator(config["id"])
     
-    for idx in range(5):
+    for idx in range(30):
         fidx = f'{idx:08}'
         fname = f'{fidx}.jpg'
         

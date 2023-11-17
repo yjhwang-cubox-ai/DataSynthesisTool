@@ -1,8 +1,8 @@
 {
     "id":{
         "type" : "주민등록증",
-        "img_width" : "960",
-        "img_height" : "600",
+        "img_width" : 960,
+        "img_height" : 600,
 
         "korean_firstname_male_list" : "data/name/kor_name_m.csv",
         "korean_firstname_female_list" : "data/name/kor_name_f.csv",
@@ -20,6 +20,10 @@
         "issue_authority_font" : "./fonts/GimhaeGayaR.ttf",
 
         "template_directory" : "data/template",
+        "hologram_directory" : "data/hologram",
+
+        "add_hologram" : "True",
+        "hologram_ratio" : 0.8,
 
         "save_image_dir" : "output/syntext-img",
         "save_annotation_dir" : "output/syntext-anno/by_img"
