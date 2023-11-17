@@ -400,14 +400,14 @@ class Generator:
         if random.random() < 0.5:
             img = self.addFilter(img, template)
         
-        if self.add_hologram == 'True':
+        if self.add_hologram == True:
             if random.random() < self.hologram_ratio:
                 img = self.addHologram(img)        
         
         img_path = os.path.join(self.save_img_dir, fname)
         
         img.save(img_path)
-        print(f"{img_path} is saved!")
+        # print(f"{img_path} is saved!")
     
     def addFilter(self, img, template):
         filter = Image.open(template).resize((self.img_width,self.img_height)).convert("RGBA")
