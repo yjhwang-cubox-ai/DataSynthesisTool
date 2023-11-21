@@ -5,10 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: 현재 파일",
+            "name": "SynthData",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "main.py",
+            "args" : [
+                "--config_dir", "data_config.json",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "visualizeBbox",
+            "type": "python",
+            "request": "launch",
+            "program": "visualize_bbox.py",
+            "args" : [
+                "--label_dir", "test\\syntext-anno",
+                "--img_dir", "test\\syntext-img",
+                "--out_dir", "result_visualize_test"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         }

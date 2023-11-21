@@ -17,12 +17,13 @@ def work(p_list):
     
     data_count = config["id"]["data_count"]
         
-    data_quarter = data_count // 8
+    data_quarter = data_count // 16
     i = p_list
     
     print(f"{i}-th process start!")
     
     for idx in tqdm(range(data_quarter * i, data_quarter * i + data_quarter)):
+        
         fidx = f'{idx:08}'
         fname = f'{fidx}.jpg'
         
@@ -34,9 +35,9 @@ def main():
     
     tic= time()
     
-    p_list = [0,1,2,3,4,5,6,7]
+    p_list = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
    
-    pool = multiprocessing.Pool(processes=8)
+    pool = multiprocessing.Pool(processes=16)
     pool.map(work, p_list)
     
     pool.close()
