@@ -111,6 +111,7 @@ class Generator:
     
     def clear_inform(self):
         self.Information.clear()
+        self.bbox_annotation.clear()
         self.Id_information['name'].clear()
         self.Id_information['chinese_name'].clear()
         self.Id_information['resident_registration_number'].clear()
