@@ -406,6 +406,9 @@ class Generator:
         
         img_path = os.path.join(self.save_img_dir, fname)
         
+        if not os.path.exists(self.save_img_dir):
+            os.makedirs(self.save_img_dir)
+        
         img.save(img_path)
         # print(f"{img_path} is saved!")
     
@@ -448,6 +451,9 @@ class Generator:
             annos["annotations"][idx+1]=anno_dict
         
         anno_file_path = os.path.join(self.save_anno_dir, f"{img_idx}.json")
+        
+        if not os.path.exists(self.save_anno_dir):
+            os.makedirs(self.save_anno_dir)
         
         with open(anno_file_path, 'w') as f:
             json.dump(annos, f)
