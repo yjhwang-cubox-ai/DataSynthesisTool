@@ -11,6 +11,7 @@
             "program": "main.py",
             "args" : [
                 "--config_dir", "data_config.json",
+                "--num_process", "4"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

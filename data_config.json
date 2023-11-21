@@ -2,7 +2,7 @@
     "id":{
         "type" : "주민등록증",
 
-        "data_count" : 400,
+        "data_count" : 160,
 
         "img_width" : 960,
         "img_height" : 600,
@@ -28,7 +28,7 @@
         "add_hologram" : true,
         "hologram_ratio" : 0.7,
 
-        "save_image_dir" : "E:\\regicard\\syntext-img",
-        "save_annotation_dir" : "E:\\regicard\\syntext-anno"
+        "save_image_dir" : "E:\\regicard_test\\syntext-img",
+        "save_annotation_dir" : "E:\\regicard_test\\syntext-anno"
     }
 }

@@ -2,22 +2,27 @@ import multiprocessing
 import argparse
 from tqdm import tqdm
 
-from utils.file_utils import *
-from utils.text_utils import *
-
 from utils import syntext
+from utils import file_utils
 
 from time import time
 
-def work(p_list):
-    json = 'data_config.json'
-    config = load_config(json)
+def parse():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config_dir", type=str)
+    parser.add_argument("--num_process", type=int)
+    return parser.parse_args()
+
+def work(p_list):    
+    args = parse()
+    
+    config = file_utils.load_config(args.config_dir)
         
     generator = syntext.Generator(config["id"])
     
     data_count = config["id"]["data_count"]
         
-    data_quarter = data_count // 16
+    data_quarter = data_count // args.num_process
     i = p_list
     
     print(f"{i}-th process start!")
@@ -33,11 +38,15 @@ def work(p_list):
 
 def main():
     
+    args = parse()
+    
     tic= time()
     
-    p_list = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    p_list = []
+    for worker in range(args.num_process):
+        p_list.append(worker)
    
-    pool = multiprocessing.Pool(processes=16)
+    pool = multiprocessing.Pool(processes=args.num_process)
     pool.map(work, p_list)
     
     pool.close()
@@ -46,7 +55,6 @@ def main():
     print(time() - tic)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
     main()
     
     
